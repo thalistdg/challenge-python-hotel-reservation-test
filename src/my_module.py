@@ -1,6 +1,27 @@
-def compare_hotels(hotel1, hotel2, customer, nweek, nweekend):
-    price1 = hotel1.get_price(customer, nweek, nweekend)
-    price2 = hotel2.get_price(customer, nweek, nweekend)
+from .hotel import Hotel
+
+hotels = []
+hotels.append(Hotel('Lakewood', 110, 90, 80, 80, 3))
+hotels.append(Hotel('Bridgewood', 160, 60, 110, 50, 4))
+hotels.append(Hotel('Ridgewood', 220, 150, 100, 40, 5))
+
+def compare_hotels(hotel1, hotel2, customer, n_weekdays, n_weekends):
+    '''
+    Compare two hotels and returns the best for some customer based on the number 
+    of days required.
+
+    Parameters:
+        hotel1 (Hotel):The first hotel to be compared.
+        hotel2 (Hotel):The second hotel to be compared.
+        customer (str):The type of customer (regular or rewards).
+        n_weekdays (int):Number of weekdays.
+        n_weekends (int):Number of weekends.
+
+    Returns:
+        (Hotel):The cheapest hotel according price and stars.
+    '''
+    price1 = hotel1.get_price(customer, n_weekdays, n_weekends)
+    price2 = hotel2.get_price(customer, n_weekdays, n_weekends)
 
     if price1 < price2:
         return hotel1
@@ -16,58 +37,26 @@ def compare_hotels(hotel1, hotel2, customer, nweek, nweekend):
 
 
 def get_cheapest_hotel(line):
+    '''
+    Get the cheapest hotel name.
+
+    Parameters:
+        line (str):<type_of_client>: <date1>, <date2>, <date3>, ....
+
+    Returns:
+        (str):The cheapest hotel name according price and stars.
+    '''
     customer, days = line.split(':')
-    ndays = days.count(',') + 1
+    n_days = days.count(',') + 1
     
-    nweekend = days.count('sat')
-    nweekend += days.count('sun')
+    n_weekends = days.count('sat')
+    n_weekends += days.count('sun')
 
-    nweek = ndays - nweekend
+    n_weekdays = n_days - n_weekends
 
-    hotels = []
-
-    hotels.append(Hotel('Lakewood', 110, 90, 80, 80, 3))
-    hotels.append(Hotel('Bridgewood', 160, 60, 110, 50, 4))
-    hotels.append(Hotel('Ridgewood', 220, 150, 100, 40, 5))
-
-    best_hotel = hotels[0]
+    cheapest_hotel = hotels[0]
 
     for h in hotels:
-        best_hotel = compare_hotels(best_hotel, h, customer, nweek, nweekend)
+        cheapest_hotel = compare_hotels(cheapest_hotel, h, customer, n_weekdays, n_weekends)
 
-    print(best_hotel.name, best_hotel.get_price(customer, nweek, nweekend), best_hotel.stars)
-    
-    cheapest_hotel = best_hotel.name
-
-    return cheapest_hotel
-
-class Hotel():
-
-    def __init__(self,
-                name,
-                regular_weekday_tax,
-                regular_weekend_tax,
-                reward_weekday_tax,
-                reward_weekend_tax,
-                stars,
-                ):
-
-        self.name = name
-        self.regular_weekday_tax = regular_weekday_tax
-        self.regular_weekend_tax = regular_weekend_tax
-        self.reward_weekday_tax = reward_weekday_tax
-        self.reward_weekend_tax = reward_weekend_tax
-        self.stars = stars
-
-    def get_price(self, customer, n_weekdays, n_weekends):
-        
-        if customer == 'Regular':
-            price = n_weekdays * self.regular_weekday_tax + n_weekends * self.regular_weekend_tax
-
-        elif customer == 'Rewards':
-            price = n_weekdays * self.reward_weekday_tax + n_weekends * self.reward_weekend_tax
-
-        else:
-            price = -1
-
-        return price
+    return cheapest_hotel.name
